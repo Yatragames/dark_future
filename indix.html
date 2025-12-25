@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Short Video Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* Side Menu Styles */
+        .side-menu {
+            position: fixed;
+            left: -250px;
+            top: 0;
+            width: 250px;
+            height: 100%;
+            background-color: #111;
+            z-index: 1000;
+            transition: left 0.3s ease;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+            overflow-y: auto;
+        }
+
+            .side-menu.active {
+                left: 0;
+            }
+
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+
+            .menu-header h2 {
+                color: #fff;
+                font-size: 22px;
+            }
+
+        .close-menu {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .category-section {
+            margin-bottom: 20px;
+        }
+
+            .category-section h3 {
+                margin-bottom: 10px;
+                color: #ff2d55;
+                font-size: 18px;
+            }
+
+        .category-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .tag {
+            padding: 5px 12px;
+            background-color: #333;
+            border-radius: 15px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+            .tag:hover {
+                background-color: #444;
+            }
+
+            .tag.active {
+                background-color: #ff2d55;
+                color: white;
+            }
+
+        .video-tags {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .video-tag {
+            background-color: rgba(255, 45, 85, 0.2);
+            color: #ff6b8b;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .random-mode {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #222;
+            border-radius: 8px;
+        }
+
+            .random-mode h3 {
+                margin-bottom: 10px;
+                color: #fff;
+            }
+
+        .mode-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+            .mode-option input {
+                margin-right: 10px;
+            }
+
+        .report-link {
+            color: #ff4757;
+            text-decoration: none;
+            display: block;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ff4757;
+            border-radius: 5px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+            .report-link:hover {
+                background-color: #ff4757;
+                color: #fff;
+            }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            position: relative;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff2d55;
+        }
+
+        .upload-btn {
+            background-color: #ff2d55;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+            .upload-btn:hover {
+                background-color: #ff1744;
+            }
+
+        /* Video Player */
+        .video-player-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .video-player {
+            width: 100%;
+            max-width: 400px;
+            height: 85vh;
+            background-color: #111;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.5);
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Video Controls */
+        .video-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            z-index: 10;
+        }
+
+        .control-btn {
+            background-color: rgba(0,0,0,0.5);
+            border: none;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+            .control-btn:hover {
+                background-color: rgba(255,255,255,0.2);
+                transform: scale(1.1);
+            }
+
+        /* Right Side Actions */
+        .right-actions {
+            position: absolute;
+            right: 20px;
+            bottom: 120px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 10;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+            .action-btn:hover {
+                transform: scale(1.1);
+            }
+
+        .action-icon {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+
+        .action-text {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* Video Info */
+        .video-info {
+            position: absolute;
+            bottom: 80px;
+            left: 20px;
+            max-width: 70%;
+            z-index: 10;
+        }
+
+        .video-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .video-author {
+            font-size: 16px;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+
+        .video-category {
+            display: inline-block;
+            background-color: #ff2d55;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        /* Terms and Conditions */
+        .terms {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 12px;
+            color: #888;
+        }
+
+            .terms a {
+                color: #ff2d55;
+                text-decoration: none;
+            }
+
+                .terms a:hover {
+                    text-decoration: underline;
+                }
+
+        /* Upload Modal */
+        .upload-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+            .upload-modal.active {
+                display: flex;
+            }
+
+        .upload-form {
+            background-color: #222;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+            .upload-form h3 {
+                margin-bottom: 20px;
+                text-align: center;
+                color: #ff2d55;
+            }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: bold;
+            }
+
+            .form-group input, .form-group select, .tag-input {
+                width: 100%;
+                padding: 10px;
+                border-radius: 5px;
+                border: 1px solid #444;
+                background-color: #333;
+                color: white;
+            }
+
+        .tag-selection {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .tag-checkbox {
+            display: none;
+        }
+
+        .tag-label {
+            padding: 5px 12px;
+            background-color: #444;
+            border-radius: 15px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tag-checkbox:checked + .tag-label {
+            background-color: #ff2d55;
+            color: white;
+        }
+
+        .form-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .submit-btn, .cancel-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .submit-btn {
+            background-color: #ff2d55;
+            color: white;
+        }
+
+        .cancel-btn {
+            background-color: #666;
+            color: white;
+        }
+
+        /* Video List */
+        .video-list {
+            position: absolute;
+            right: -300px;
+            top: 0;
+            width: 300px;
+            height: 100%;
+            background-color: #111;
+            z-index: 500;
+            padding: 20px;
+            overflow-y: auto;
+            transition: right 0.3s ease;
+        }
+
+            .video-list.active {
+                right: 0;
+            }
+
+        .video-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+            .video-list-header h3 {
+                color: #fff;
+            }
+
+        .close-list {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .video-item {
+            margin-bottom: 15px;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+
+            .video-item:hover {
+                background-color: #222;
+            }
+
+            .video-item.active {
+                background-color: #333;
+                border-left: 3px solid #ff2d55;
+            }
+
+        .video-item-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .video-item-category {
+            font-size: 12px;
+            color: #ff2d55;
+            background-color: rgba(255,45,85,0.1);
+            padding: 2px 8px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        /* Message */
+        .message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            z-index: 3000;
+            display: none;
+        }
+
+            .message.active {
+                display: block;
+                animation: fadeInOut 3s forwards;
+            }
+
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+
+        /* Watch History */
+        .history-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(0,0,0,0.7);
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 12px;
+            z-index: 10;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .video-player {
+                max-width: 100%;
+                height: 100vh;
+                border-radius: 0;
+            }
+
+            .right-actions {
+                right: 10px;
+                bottom: 100px;
+            }
+
+            .video-info {
+                left: 10px;
+                bottom: 60px;
+            }
+
+            .terms {
+                font-size: 10px;
+            }
+
+            .history-info {
+                top: 10px;
+                right: 10px;
+                font-size: 10px;
+                padding: 8px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Side Menu -->
+        <div class="side-menu" id="sideMenu">
+            <div class="menu-header">
+                <h2>Filter Videos</h2>
+                <button class="close-menu" id="closeMenu">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Random Play Mode -->
+            <div class="random-mode">
+                <h3>Random Play Mode</h3>
+                <div class="mode-option">
+                    <input type="radio" id="mode-all" name="random-mode" value="all" checked>
+                    <label for="mode-all">All Videos (No Repeat)</label>
+                </div>
+                <div class="mode-option">
+                    <input type="radio" id="mode-category" name="random-mode" value="category">
+                    <label for="mode-category">Selected Category Only</label>
+                </div>
+                <div class="mode-option">
+                    <input type="radio" id="mode-tag" name="random-mode" value="tag">
+                    <label for="mode-tag">Selected Tags Only</label>
+                </div>
+                <button id="randomizeBtn" class="submit-btn" style="width:100%; margin-top:10px;">
+                    <i class="fas fa-random"></i> Play Random Video
+                </button>
+            </div>
+
+            <!-- Category Filter -->
+            <div class="category-section">
+                <h3>Categories</h3>
+                <div class="category-tags" id="categoryTags">
+                    <!-- Categories will be added here by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Tag Filter -->
+            <div class="category-section">
+                <h3>Tags</h3>
+                <div class="category-tags" id="tagFilter">
+                    <!-- Tags will be added here by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Watch History -->
+            <div class="category-section">
+                <h3>Watch History</h3>
+                <div id="historyCount">Watched: 0/0 videos</div>
+                <button id="clearHistory" class="tag" style="margin-top:10px; background-color:#333; color:#ff4757;">
+                    <i class="fas fa-trash"></i> Clear History
+                </button>
+            </div>
+
+            <a href="#" class="report-link" id="reportLink">
+                <i class="fas fa-flag"></i> Report Video
+            </a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Top Navigation -->
+            <div class="top-nav">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="logo">ShortVid</div>
+                <button class="upload-btn" id="uploadBtn">
+                    <i class="fas fa-upload"></i> Upload
+                </button>
+            </div>
+
+            <!-- Watch History Info -->
+            <div class="history-info" id="historyInfo">
+                <i class="fas fa-history"></i> <span id="watchedCount">0</span>/<span id="totalCount">0</span> videos watched
+            </div>
+
+            <!-- Video Player -->
+            <div class="video-player-container">
+                <div class="video-player">
+                    <video id="mainVideo" controls autoplay muted>
+                        <!-- Video will be loaded here -->
+                        Your browser does not support the video tag.
+                    </video>
+
+                    <!-- Video Info Overlay -->
+                    <div class="video-info">
+                        <div class="video-title" id="videoTitle">Funny Cat Compilation</div>
+                        <div class="video-author" id="videoAuthor">@catlover123</div>
+                        <div class="video-tags" id="videoTags">
+                            <!-- Tags will be added here by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Video Controls -->
+                    <div class="video-controls">
+                        <button class="control-btn" id="prevBtn">
+                            <i class="fas fa-backward"></i>
+                        </button>
+                        <button class="control-btn" id="playPauseBtn">
+                            <i class="fas fa-pause"></i>
+                        </button>
+                        <button class="control-btn" id="nextBtn">
+                            <i class="fas fa-forward"></i>
+                        </button>
+                    </div>
+
+                    <!-- Right Side Actions -->
+                    <div class="right-actions">
+                        <button class="action-btn" id="likeBtn">
+                            <div class="action-icon">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <div class="action-text" id="likeCount">12.5K</div>
+                        </button>
+
+                        <button class="action-btn" id="shareBtn">
+                            <div class="action-icon">
+                                <i class="fas fa-share"></i>
+                            </div>
+                            <div class="action-text">Share</div>
+                        </button>
+
+                        <button class="action-btn" id="downloadBtn">
+                            <div class="action-icon">
+                                <i class="fas fa-download"></i>
+                            </div>
+                            <div class="action-text">Download</div>
+                        </button>
+
+                        <button class="action-btn" id="listBtn">
+                            <div class="action-icon">
+                                <i class="fas fa-list"></i>
+                            </div>
+                            <div class="action-text">Videos</div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Terms and Conditions -->
+            <div class="terms">
+                <a href="#" id="termsLink">Terms and Conditions</a>
+            </div>
+        </div>
+
+        <!-- Video List Sidebar -->
+        <div class="video-list" id="videoList">
+            <div class="video-list-header">
+                <h3>All Videos</h3>
+                <button class="close-list" id="closeList">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="videoItemsContainer">
+                <!-- Video items will be added here by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Upload Modal -->
+        <div class="upload-modal" id="uploadModal">
+            <div class="upload-form">
+                <h3>Upload New Video</h3>
+                <div class="form-group">
+                    <label for="videoTitleInput">Video Title</label>
+                    <input type="text" id="videoTitleInput" placeholder="Enter video title">
+                </div>
+                <div class="form-group">
+                    <label for="videoAuthorInput">Author Name</label>
+                    <input type="text" id="videoAuthorInput" placeholder="Enter your name">
+                </div>
+                <div class="form-group">
+                    <label for="videoCategorySelect">Primary Category</label>
+                    <select id="videoCategorySelect">
+                        <!-- Categories will be added here by JavaScript -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tags (Select multiple)</label>
+                    <div class="tag-selection" id="tagSelection">
+                        <!-- Tags will be added here by JavaScript -->
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="videoFile">Video File</label>
+                    <input type="file" id="videoFile" accept="video/*">
+                    <p style="margin-top: 5px; font-size: 12px; color: #aaa;">
+                        Video will be saved in: <code>source/[category]/[video-name].mp4</code>
+                    </p>
+                </div>
+                <div class="form-buttons">
+                    <button class="cancel-btn" id="cancelUpload">Cancel</button>
+                    <button class="submit-btn" id="submitUpload">Upload Video</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message -->
+        <div class="message" id="message"></div>
+    </div>
+
+    <script>
+        // Enhanced data structure with tags
+        const categories = ["Comedy", "Hate", "corruption", "Education", "Gaming", "News", "Travel", "Food"];
+        const allTags = ["Funny", "Tutorial", "Epic", "Fail", "Challenge", "Hate", "corruption", "Gaming", "Cute", "Educational", "News", "Travel", "Food", "DIY", "Viral", "Trending"];
+
+        const videoLibrary = [
+        {
+        id: 1,
+        title: "Hate against Muslim",
+        author: "",
+        category: "Hate",
+        tags: ["Hate"],
+        filename: "Hate against Muslim.mp4",
+        
+        },
+        {
+        id: 2,
+        title: "Gunda",
+        author: "",
+        category: "horrify",
+        tags: ["horrify"],
+        filename: "Gunda.mp4",
+        
+        },
+        {
+        id: 3,
+        title: "criminal",
+        author: "",
+        category: "sexual",
+        tags: ["sexual assault"],
+        filename: "criminal.mp4",
+        
+        },
+        {
+        id: 4,
+        title: "corruption",
+        author: "@gamerzone",
+        category: "Gaming",
+        tags: ["corruption"],
+        filename: "corruption.mp4",
+        
+        },
+        {
+        id: 5,
+        title: "Science Experiment at Home",
+        author: "@sciencefun",
+        category: "Education",
+        tags: ["Educational", "DIY", "Science"],
+        filename: "science_experiment.mp4",
+        likes: 7600
+        }
+        ];
+
+        // State management
+        let currentVideoIndex = 0;
+        let isPlaying = true;
+        let watchedVideos = new Set();
+        let selectedCategory = "all";
+        let selectedTags = new Set();
+        let randomMode = "all"; // all, category, tag
+
+        // DOM Elements
+        const sideMenu = document.getElementById('sideMenu');
+        const menuToggle = document.getElementById('menuToggle');
+        const closeMenu = document.getElementById('closeMenu');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const uploadModal = document.getElementById('uploadModal');
+        const cancelUpload = document.getElementById('cancelUpload');
+        const submitUpload = document.getElementById('submitUpload');
+        const mainVideo = document.getElementById('mainVideo');
+        const videoTitle = document.getElementById('videoTitle');
+        const videoAuthor = document.getElementById('videoAuthor');
+        const videoTags = document.getElementById('videoTags');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const likeBtn = document.getElementById('likeBtn');
+        const likeCount = document.getElementById('likeCount');
+        const shareBtn = document.getElementById('shareBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const listBtn = document.getElementById('listBtn');
+        const videoList = document.getElementById('videoList');
+        const closeList = document.getElementById('closeList');
+        const termsLink = document.getElementById('termsLink');
+        const reportLink = document.getElementById('reportLink');
+        const categoryTags = document.getElementById('categoryTags');
+        const tagFilter = document.getElementById('tagFilter');
+        const historyInfo = document.getElementById('historyInfo');
+        const watchedCount = document.getElementById('watchedCount');
+        const totalCount = document.getElementById('totalCount');
+        const historyCount = document.getElementById('historyCount');
+        const clearHistory = document.getElementById('clearHistory');
+        const randomizeBtn = document.getElementById('randomizeBtn');
+        const videoCategorySelect = document.getElementById('videoCategorySelect');
+        const tagSelection = document.getElementById('tagSelection');
+        const videoItemsContainer = document.getElementById('videoItemsContainer');
+        const message = document.getElementById('message');
+
+        // Initialize the app
+        function initApp() {
+        // Load watched history from localStorage
+        loadWatchedHistory();
+
+        // Load categories and tags
+        loadCategoriesAndTags();
+
+        // Load videos
+        loadVideos();
+
+        // Load random video based on current filters
+        loadRandomVideo();
+
+        // Update history display
+        updateHistoryDisplay();
+
+        // Event listeners
+        menuToggle.addEventListener('click', () => sideMenu.classList.add('active'));
+        closeMenu.addEventListener('click', () => sideMenu.classList.remove('active'));
+        uploadBtn.addEventListener('click', () => uploadModal.classList.add('active'));
+        cancelUpload.addEventListener('click', () => uploadModal.classList.remove('active'));
+        submitUpload.addEventListener('click', uploadVideo);
+
+        playPauseBtn.addEventListener('click', togglePlayPause);
+        prevBtn.addEventListener('click', prevVideo);
+        nextBtn.addEventListener('click', nextVideo);
+
+        likeBtn.addEventListener('click', likeVideo);
+        shareBtn.addEventListener('click', shareVideo);
+        downloadBtn.addEventListener('click', downloadVideo);
+        listBtn.addEventListener('click', () => videoList.classList.add('active'));
+        closeList.addEventListener('click', () => videoList.classList.remove('active'));
+
+        termsLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        showMessage("Redirecting to Terms and Conditions...");
+        // In production, you would redirect to your terms page
+        // window.location.href = "https://yourwebsite.com/terms";
+        });
+
+        reportLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        showMessage("Report submitted. Thank you for your feedback!");
+        });
+
+        clearHistory.addEventListener('click', clearWatchedHistory);
+        randomizeBtn.addEventListener('click', loadRandomVideo);
+
+        // Handle video end
+        mainVideo.addEventListener('ended', nextVideo);
+
+        // Update play/pause button when video is played/paused by user
+        mainVideo.addEventListener('play', () => {
+        isPlaying = true;
+        updatePlayPauseButton();
+        });
+
+        mainVideo.addEventListener('pause', () => {
+        isPlaying = false;
+        updatePlayPauseButton();
+        });
+
+        // Update random mode selection
+        document.querySelectorAll('input[name="random-mode"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+        randomMode = this.value;
+        showMessage(`Random mode set to: ${this.value}`);
+        });
+        });
+
+        // Mark video as watched when it starts playing
+        mainVideo.addEventListener('play', markVideoAsWatched);
+        }
+
+        // Load watched history from localStorage
+        function loadWatchedHistory() {
+        const savedHistory = localStorage.getItem('videoWatchHistory');
+        if (savedHistory) {
+        watchedVideos = new Set(JSON.parse(savedHistory));
+        }
+        }
+
+        // Save watched history to localStorage
+        function saveWatchedHistory() {
+        localStorage.setItem('videoWatchHistory', JSON.stringify([...watchedVideos]));
+        }
+
+        // Mark current video as watched
+        function markVideoAsWatched() {
+        const videoId = videoLibrary[currentVideoIndex].id;
+        if (!watchedVideos.has(videoId)) {
+        watchedVideos.add(videoId);
+        saveWatchedHistory();
+        updateHistoryDisplay();
+        }
+        }
+
+        // Clear watched history
+        function clearWatchedHistory() {
+        watchedVideos.clear();
+        saveWatchedHistory();
+        updateHistoryDisplay();
+        showMessage("Watch history cleared!");
+        }
+
+        // Update history display
+        function updateHistoryDisplay() {
+        const totalVideos = getFilteredVideos().length;
+        const watched = [...watchedVideos].filter(id =>
+        videoLibrary.some(video => video.id === id &&
+        (selectedCategory === "all" || video.category === selectedCategory) &&
+        (selectedTags.size === 0 || video.tags.some(tag => selectedTags.has(tag)))
+        )
+        ).length;
+
+        watchedCount.textContent = watched;
+        totalCount.textContent = totalVideos;
+        historyCount.textContent = `Watched: ${watched}/${totalVideos} videos`;
+        }
+
+        // Load categories and tags into the UI
+        function loadCategoriesAndTags() {
+        // Clear existing categories and tags
+        categoryTags.innerHTML = '';
+        tagFilter.innerHTML = '';
+        videoCategorySelect.innerHTML = '';
+        tagSelection.innerHTML = '';
+
+        // Add "All" category
+        const allCategory = document.createElement('div');
+        allCategory.className = `tag ${selectedCategory === "all" ? "active" : ""}`;
+        allCategory.textContent = "All";
+        allCategory.dataset.category = "all";
+        allCategory.addEventListener('click', () => selectCategory("all"));
+        categoryTags.appendChild(allCategory);
+
+        // Add categories
+        categories.forEach(category => {
+        // Add to category filter
+        const categoryTag = document.createElement('div');
+        categoryTag.className = `tag ${selectedCategory === category ? "active" : ""}`;
+        categoryTag.textContent = category;
+        categoryTag.dataset.category = category;
+        categoryTag.addEventListener('click', () => selectCategory(category));
+        categoryTags.appendChild(categoryTag);
+
+        // Add to upload form select
+        const option = document.createElement('option');
+        option.value = category;
+        option.textContent = category;
+        videoCategorySelect.appendChild(option);
+        });
+
+        // Add tags to filter
+        allTags.forEach(tag => {
+        const tagElement = document.createElement('div');
+        tagElement.className = `tag ${selectedTags.has(tag) ? "active" : ""}`;
+        tagElement.textContent = tag;
+        tagElement.dataset.tag = tag;
+        tagElement.addEventListener('click', () => toggleTag(tag));
+        tagFilter.appendChild(tagElement);
+        });
+
+        // Add tags to upload form
+        allTags.forEach(tag => {
+        const tagId = `tag-${tag.replace(/\s+/g, '-').toLowerCase()}`;
+
+        const checkbox = document.createElement('input');
+        checkbox.type = "checkbox";
+        checkbox.id = tagId;
+        checkbox.className = "tag-checkbox";
+        checkbox.value = tag;
+
+        const label = document.createElement('label');
+        label.htmlFor = tagId;
+        label.className = "tag-label";
+        label.textContent = tag;
+
+        tagSelection.appendChild(checkbox);
+        tagSelection.appendChild(label);
+        });
+        }
+
+        // Select a category
+        function selectCategory(category) {
+        selectedCategory = category;
+        selectedTags.clear(); // Clear tags when selecting a category
+
+        // Update UI
+        document.querySelectorAll('.tag[data-category]').forEach(tag => {
+        tag.classList.toggle('active', tag.dataset.category === category);
+        });
+
+        // Update video list
+        loadVideos();
+
+        // Load a random video from selected category
+        loadRandomVideo();
+
+        // Update history display
+        updateHistoryDisplay();
+
+        showMessage(`Showing videos from: ${category === "all" ? "All Categories" : category}`);
+        }
+
+        // Toggle a tag
+        function toggleTag(tag) {
+        if (selectedTags.has(tag)) {
+        selectedTags.delete(tag);
+        } else {
+        selectedTags.add(tag);
+        selectedCategory = "all"; // Switch to "All" category when selecting tags
+
+        // Update category UI
+        document.querySelectorAll('.tag[data-category]').forEach(catTag => {
+        catTag.classList.toggle('active', catTag.dataset.category === "all");
+        });
+        }
+
+        // Update UI
+        document.querySelectorAll('.tag[data-tag]').forEach(tagElement => {
+        tagElement.classList.toggle('active', selectedTags.has(tagElement.dataset.tag));
+        });
+
+        // Update video list
+        loadVideos();
+
+        // Load a random video from selected tags
+        loadRandomVideo();
+
+        // Update history display
+        updateHistoryDisplay();
+
+        showMessage(`Filtering by tags: ${selectedTags.size > 0 ? [...selectedTags].join(', ') : "None"}`);
+        }
+
+        // Get filtered videos based on current selection
+        function getFilteredVideos() {
+        return videoLibrary.filter(video => {
+        // Filter by category
+        if (selectedCategory !== "all" && video.category !== selectedCategory) {
+        return false;
+        }
+
+        // Filter by tags
+        if (selectedTags.size > 0 && !video.tags.some(tag => selectedTags.has(tag))) {
+        return false;
+        }
+
+        return true;
+        });
+        }
+
+        // Load videos into the video list
+        function loadVideos() {
+        videoItemsContainer.innerHTML = '';
+
+        const filteredVideos = getFilteredVideos();
+
+        filteredVideos.forEach((video, index) => {
+        const originalIndex = videoLibrary.findIndex(v => v.id === video.id);
+        const videoItem = document.createElement('div');
+        videoItem.className = 'video-item';
+        if (originalIndex === currentVideoIndex) videoItem.classList.add('active');
+        videoItem.setAttribute('data-index', originalIndex);
+
+        videoItem.innerHTML = `
+        <div class="video-item-title">${video.title}</div>
+        <div style="font-size: 14px; color: #aaa; margin-bottom: 5px;">${video.author}</div>
+        <div style="margin-bottom: 5px;">
+        <span class="video-item-category">${video.category}</span>
+        ${video.tags.map(tag => `<span class="video-item-category" style="background-color: rgba(255, 107, 139, 0.2); color: #ff6b8b;">${tag}</span>`).join('')}
+        </div>
+        ${watchedVideos.has(video.id) ? '<div style="font-size: 11px; color: #4CAF50;"><i class="fas fa-check-circle"></i> Watched</div>' : ''}
+        `;
+
+        videoItem.addEventListener('click', () => {
+        currentVideoIndex = originalIndex;
+        loadVideo(currentVideoIndex);
+        videoList.classList.remove('active');
+
+        // Update active state
+        document.querySelectorAll('.video-item').forEach(item => {
+        item.classList.remove('active');
+        });
+        videoItem.classList.add('active');
+        });
+
+        videoItemsContainer.appendChild(videoItem);
+        });
+        }
+
+        // Load a random video
+        function loadRandomVideo() {
+        const filteredVideos = getFilteredVideos();
+
+        if (filteredVideos.length === 0) {
+        showMessage("No videos found with current filters!", "error");
+        return;
+        }
+
+        // Get unwatched videos based on random mode
+        let availableVideos;
+
+        if (randomMode === "all") {
+        // Show all videos without repeating until all are watched
+        availableVideos = filteredVideos.filter(video => !watchedVideos.has(video.id));
+
+        if (availableVideos.length === 0) {
+        // All videos watched, reset for this filter
+        showMessage("You've watched all videos! Resetting watch history for these filters.");
+        availableVideos = filteredVideos;
+
+        // Clear watched history only for these filtered videos
+        filteredVideos.forEach(video => {
+        watchedVideos.delete(video.id);
+        });
+        saveWatchedHistory();
+        }
+        } else {
+        // For category or tag mode, show random from filtered videos
+        availableVideos = filteredVideos;
+        }
+
+        // Select random video
+        const randomIndex = Math.floor(Math.random() * availableVideos.length);
+        const selectedVideo = availableVideos[randomIndex];
+
+        // Find the original index
+        currentVideoIndex = videoLibrary.findIndex(v => v.id === selectedVideo.id);
+
+        // Load the video
+        loadVideo(currentVideoIndex);
+
+        // Mark as watched if in "all" mode
+        if (randomMode === "all") {
+        markVideoAsWatched();
+        }
+
+        showMessage(`Playing random video from ${randomMode} mode`);
+        }
+
+        // Load a specific video
+        function loadVideo(index) {
+        const video = videoLibrary[index];
+
+        // Update video source
+        mainVideo.src = `source/${video.category}/${video.filename}`;
+
+        // Update video info
+        videoTitle.textContent = video.title;
+        videoAuthor.textContent = video.author;
+
+        // Update tags display
+        videoTags.innerHTML = '';
+        video.tags.forEach(tag => {
+        const tagElement = document.createElement('span');
+        tagElement.className = 'video-category';
+        tagElement.textContent = `#${tag}`;
+        videoTags.appendChild(tagElement);
+        });
+
+        likeCount.textContent = formatNumber(video.likes);
+
+        // Play the video
+        mainVideo.play();
+        isPlaying = true;
+        updatePlayPauseButton();
+
+        // Update active video in list
+        document.querySelectorAll('.video-item').forEach(item => {
+        item.classList.remove('active');
+        });
+        const activeItem = document.querySelector(`.video-item[data-index="${index}"]`);
+        if (activeItem) {
+        activeItem.classList.add('active');
+        }
+
+        // Update history display
+        updateHistoryDisplay();
+        }
+
+        // Toggle play/pause
+        function togglePlayPause() {
+        if (isPlaying) {
+        mainVideo.pause();
+        } else {
+        mainVideo.play();
+        }
+        isPlaying = !isPlaying;
+        updatePlayPauseButton();
+        }
+
+        // Update play/pause button
+        function updatePlayPauseButton() {
+        const icon = playPauseBtn.querySelector('i');
+        if (isPlaying) {
+        icon.className = 'fas fa-pause';
+        } else {
+        icon.className = 'fas fa-play';
+        }
+        }
+
+        // Previous video (random from filtered videos)
+        function prevVideo() {
+        const filteredVideos = getFilteredVideos();
+        const currentFilteredIndex = filteredVideos.findIndex(v => v.id === videoLibrary[currentVideoIndex].id);
+
+        if (filteredVideos.length > 1) {
+        let newIndex;
+        do {
+        newIndex = Math.floor(Math.random() * filteredVideos.length);
+        } while (newIndex === currentFilteredIndex && filteredVideos.length > 1);
+
+        const selectedVideo = filteredVideos[newIndex];
+        currentVideoIndex = videoLibrary.findIndex(v => v.id === selectedVideo.id);
+        loadVideo(currentVideoIndex);
+
+        if (randomMode === "all") {
+        markVideoAsWatched();
+        }
+        }
+        }
+
+        // Next video (random from filtered videos)
+        function nextVideo() {
+        const filteredVideos = getFilteredVideos();
+        const currentFilteredIndex = filteredVideos.findIndex(v => v.id === videoLibrary[currentVideoIndex].id);
+
+        if (filteredVideos.length > 1) {
+        let newIndex;
+        do {
+        newIndex = Math.floor(Math.random() * filteredVideos.length);
+        } while (newIndex === currentFilteredIndex && filteredVideos.length > 1);
+
+        const selectedVideo = filteredVideos[newIndex];
+        currentVideoIndex = videoLibrary.findIndex(v => v.id === selectedVideo.id);
+        loadVideo(currentVideoIndex);
+
+        if (randomMode === "all") {
+        markVideoAsWatched();
+        }
+        } else if (filteredVideos.length === 1) {
+        // Only one video, just replay it
+        mainVideo.currentTime = 0;
+        mainVideo.play();
+        }
+        }
+
+        // Like video
+        function likeVideo() {
+        videoLibrary[currentVideoIndex].likes += 1;
+        likeCount.textContent = formatNumber(videoLibrary[currentVideoIndex].likes);
+
+        // Animation effect
+        likeBtn.style.transform = 'scale(1.2)';
+        setTimeout(() => {
+        likeBtn.style.transform = 'scale(1)';
+        }, 200);
+        }
+
+        // Share video
+        function shareVideo() {
+        const video = videoLibrary[currentVideoIndex];
+        const shareUrl = `${window.location.origin}/video/${video.id}`;
+
+        // In a real app, you would use the Web Share API or a custom modal
+        if (navigator.share) {
+        navigator.share({
+        title: video.title,
+        text: `Check out this video: ${video.title}`,
+        url: shareUrl,
+        });
+        } else {
+        // Fallback: copy to clipboard
+        navigator.clipboard.writeText(shareUrl);
+        showMessage("Link copied to clipboard!");
+        }
+        }
+
+        // Download video
+        function downloadVideo() {
+        const video = videoLibrary[currentVideoIndex];
+        const downloadUrl = `source/${video.category}/${video.filename}`;
+
+        // Create a temporary link to trigger download
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = video.filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        showMessage("Download started!");
+        }
+
+        // Upload video function
+        function uploadVideo() {
+        const title = document.getElementById('videoTitleInput').value.trim();
+        const author = document.getElementById('videoAuthorInput').value.trim();
+        const category = document.getElementById('videoCategorySelect').value;
+        const fileInput = document.getElementById('videoFile');
+
+        // Get selected tags
+        const selectedTagElements = document.querySelectorAll('#tagSelection input:checked');
+        const tags = Array.from(selectedTagElements).map(input => input.value);
+
+        // Validation
+        if (!title || !author || !category || !fileInput.files.length) {
+        showMessage("Please fill all fields and select a video file!", "error");
+        return;
+        }
+
+        // Create a unique filename
+        const timestamp = Date.now();
+        const originalFilename = fileInput.files[0].name;
+        const fileExtension = originalFilename.split('.').pop();
+        const filename = `${title.toLowerCase().replace(/\s+/g, '_')}_${timestamp}.${fileExtension}`;
+
+        // In a real application, you would upload the file to a server here
+        // For this demo, we'll just add it to the video library
+
+        // Create new video object
+        const newVideo = {
+        id: videoLibrary.length + 1,
+        title: title,
+        author: `@${author}`,
+        category: category,
+        tags: tags,
+        filename: filename,
+        likes: 0
+        };
+
+        // Add to video library
+        videoLibrary.push(newVideo);
+
+        // Reset form
+        document.getElementById('videoTitleInput').value = '';
+        document.getElementById('videoAuthorInput').value = '';
+        document.getElementById('videoCategorySelect').value = categories[0];
+        document.querySelectorAll('#tagSelection input:checked').forEach(input => {
+        input.checked = false;
+        });
+        fileInput.value = '';
+
+        // Close modal
+        uploadModal.classList.remove('active');
+
+        // Show success message
+        showMessage(`Video uploaded successfully! File saved as: source/${category}/${filename}`);
+
+        // Reload categories and tags (in case new ones were added)
+        loadCategoriesAndTags();
+
+        // Reload video list
+        loadVideos();
+
+        // Update history display
+        updateHistoryDisplay();
+
+        // Switch to the new video
+        currentVideoIndex = videoLibrary.length - 1;
+        loadVideo(currentVideoIndex);
+        }
+
+        // Show message
+        function showMessage(text, type = "success") {
+        message.textContent = text;
+        message.style.backgroundColor = type === "error" ? "#ff4757" : "#4CAF50";
+        message.classList.add('active');
+
+        setTimeout(() => {
+        message.classList.remove('active');
+        }, 3000);
+        }
+
+        // Format large numbers (e.g., 12500 -> 12.5K)
+        function formatNumber(num) {
+        if (num >= 1000000) {
+        return (num / 1000000).toFixed(1) + 'M';
+        } else if (num >= 1000) {
+        return (num / 1000).toFixed(1) + 'K';
+        }
+        return num.toString();
+        }
+
+        // Initialize the app when the page loads
+        window.addEventListener('DOMContentLoaded', initApp);
+
+        // Load random video when page is refreshed
+        window.addEventListener('load', () => {
+        // Small delay to ensure everything is loaded
+        setTimeout(() => {
+        loadRandomVideo();
+        }, 500);
+        });
+    </script>
+</body>
+</html>
